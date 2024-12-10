@@ -1,26 +1,14 @@
+import os
+
+from datetime import datetime
+
 import numpy as np
+
 import torch
 import torch.nn as nn
 import torch.optim as optim
-from scipy.optimize import rosen
-from math import pi
 
-# Define the Rastrigin function
-def rastrigin(x):
-    A = 10
-    return A * len(x) + sum([(xi**2 - A * torch.cos(2 * pi * xi)).item() for xi in x])
-
-# Define the Ackley function (for optimisation testing)
-def ackley(x):
-    a = 20
-    b = 0.2
-    c = 2 * pi
-    n = len(x)
-    sum1 = sum(xi**2 for xi in x)
-    sum2 = sum(torch.cos(c * xi) for xi in x)
-    term1 = -a * torch.exp(-b * torch.sqrt(sum1 / n))
-    term2 = -torch.exp(sum2 / n)
-    return term1 + term2 + a + torch.exp(torch.tensor(1.0))
+from functions import rosenbrock, rastrigin, ackley
 
 # Generate synthetic data for training
 def generate_data(func, n_samples=1000, input_dim=2, range_min=-5, range_max=5):
@@ -64,10 +52,15 @@ if __name__ == "__main__":
     range_min, range_max = -5, 5
     
     functions = {
-        "Rosenbrock": lambda x: rosen(x),
+        "Rosenbrock": lambda x: rosenbrock(torch.tensor(x)),
         "Rastrigin": lambda x: rastrigin(torch.tensor(x)),
         "Ackley": lambda x: ackley(torch.tensor(x))
     }
+    
+    timestamp = datetime.now().strftime("%d-%m-%Y_%H:%M:%S")
+    model_parent_path = f"models/{timestamp}"
+    
+    os.makedirs(model_parent_path)
     
     for name, func in functions.items():
         print(f"\nTraining MLP for {name} function")
@@ -77,12 +70,12 @@ if __name__ == "__main__":
         
         # Create model, optimizer, and loss function
         model = MLP(input_dim, hidden_dim, output_dim)
-        optimiser = optim.Adam(model.parameters(), lr=0.001)
+        optimiser = optim.Adagrad(model.parameters(), lr=0.01)
         loss_fn = nn.MSELoss()
         
         # Train the model
         train_mlp(model, optimiser, loss_fn, X_train, y_train, epochs=10000)
         
-        model_path = f"models/{name.lower()}_model.pt"
+        model_path = f"{model_parent_path}/{name.lower()}_model.pt"
         torch.save(model.state_dict(), model_path)
         print(f"Model saved to {model_path}")

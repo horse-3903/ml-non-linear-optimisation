@@ -1,27 +1,13 @@
+import os
+
 import numpy as np
+
 import torch
 import torch.nn as nn
+
 import matplotlib.pyplot as plt
-from math import pi
-from mpl_toolkits.mplot3d import Axes3D
-from scipy.optimize import rosen
 
-# Define the Rastrigin function
-def rastrigin(x):
-    A = 10
-    return A * len(x) + sum([(xi**2 - A * torch.cos(2 * pi * xi)).item() for xi in x])
-
-# Define the Ackley function
-def ackley(x):
-    a = 20
-    b = 0.2
-    c = 2 * pi
-    n = len(x)
-    sum1 = sum(xi**2 for xi in x)
-    sum2 = sum(torch.cos(c * xi) for xi in x)
-    term1 = -a * torch.exp(-b * torch.sqrt(sum1 / n))
-    term2 = -torch.exp(sum2 / n)
-    return term1 + term2 + a + torch.exp(torch.tensor(1.0))
+from functions import rosenbrock, rastrigin, ackley
 
 # Define the MLP model
 class MLP(nn.Module):
@@ -84,16 +70,18 @@ if __name__ == "__main__":
     output_dim = 1
 
     functions = {
-        "Rosenbrock": lambda x: rosen(x),
+        "Rosenbrock": lambda x: rosenbrock(x.clone()),
         "Rastrigin": lambda x: rastrigin(x.clone()),
         "Ackley": lambda x: ackley(x.clone())
     }
+    
+    model_parent_dir = f"models/{os.listdir('models/')[-1]}"
     
     for name, func in functions.items():
         print(f"\nTesting {name} model")
 
         # Load the saved model
-        model_path = f"models/{name.lower()}_model.pt"
+        model_path = f"{model_parent_dir}/{name.lower()}_model.pt"
         model = MLP(input_dim, hidden_dim, output_dim)
         model.load_state_dict(torch.load(model_path, weights_only=True))
         
