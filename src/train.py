@@ -10,7 +10,7 @@ def rastrigin(x):
     A = 10
     return A * len(x) + sum([(xi**2 - A * torch.cos(2 * pi * xi)).item() for xi in x])
 
-# Define the Ackley function (for optimization testing)
+# Define the Ackley function (for optimisation testing)
 def ackley(x):
     a = 20
     b = 0.2
@@ -44,37 +44,23 @@ class MLP(nn.Module):
         return self.model(x)
 
 # Training function
-def train_mlp(model, optimizer, loss_fn, X_train, y_train, epochs=1000):
-    for epoch in range(epochs):
+def train_mlp(model: MLP, optimiser: optim.Adam, loss_fn: nn.MSELoss, X_train, y_train, epochs=1000):
+    for epoch in range(epochs+1):
         model.train()
-        optimizer.zero_grad()
+        optimiser.zero_grad()
         predictions = model(X_train)
         loss = loss_fn(predictions, y_train)
         loss.backward()
-        optimizer.step()
+        optimiser.step()
         if epoch % 100 == 0:
             print(f"Epoch {epoch}: Loss = {loss.item():.4f}")
-
-# Function to evaluate optimization
-def evaluate_optimization(model, func, input_dim, range_min, range_max, iterations=100):
-    # Initialize current_point with dtype=float32 to match the model's weights
-    current_point = torch.tensor(np.random.uniform(range_min, range_max, size=(1, input_dim)), dtype=torch.float32, requires_grad=True)
-    optimizer = optim.SGD([current_point], lr=0.01)
-
-    for _ in range(iterations):
-        optimizer.zero_grad()
-        prediction = model(current_point)  # Forward pass
-        prediction.backward()
-        optimizer.step()
-    
-    return current_point.detach().numpy(), func(current_point.detach().numpy()[0])
 
 # Main script
 if __name__ == "__main__":
     input_dim = 2
-    hidden_dim = 64
+    hidden_dim = 128
     output_dim = 1
-    n_samples = 1000
+    n_samples = 50000
     range_min, range_max = -5, 5
     
     functions = {
@@ -91,13 +77,12 @@ if __name__ == "__main__":
         
         # Create model, optimizer, and loss function
         model = MLP(input_dim, hidden_dim, output_dim)
-        optimizer = optim.Adam(model.parameters(), lr=0.001)
+        optimiser = optim.Adam(model.parameters(), lr=0.001)
         loss_fn = nn.MSELoss()
         
         # Train the model
-        train_mlp(model, optimizer, loss_fn, X_train, y_train, epochs=1000)
+        train_mlp(model, optimiser, loss_fn, X_train, y_train, epochs=10000)
         
-        # Evaluate optimization
-        print(f"Evaluating optimization for {name} function")
-        result_point, result_value = evaluate_optimization(model, func, input_dim, range_min, range_max)
-        print(f"Optimized Point: {result_point}, Function Value: {result_value:.4f}")
+        model_path = f"models/{name.lower()}_model.pt"
+        torch.save(model.state_dict(), model_path)
+        print(f"Model saved to {model_path}")
