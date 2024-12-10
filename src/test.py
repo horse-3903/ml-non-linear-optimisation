@@ -75,7 +75,8 @@ if __name__ == "__main__":
         "Ackley": lambda x: ackley(x.clone())
     }
     
-    model_parent_dir = f"models/{os.listdir('models/')[-1]}"
+    model_lst = sorted(os.listdir('models/'))
+    model_parent_dir = f"models/{model_lst[-1]}"
     
     for name, func in functions.items():
         print(f"\nTesting {name} model")

@@ -25,4 +25,4 @@ def ackley(x: Tensor):
     sum2 = sum(torch.cos(c * xi) for xi in x)
     term1 = -a * torch.exp(-b * torch.sqrt(sum1 / n))
     term2 = -torch.exp(sum2 / n)
-    return term1 + term2 + a + torch.exp(torch.tensor(1.0))
+    return float(term1 + term2 + a + torch.exp(torch.tensor(1.0)))

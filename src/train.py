@@ -57,7 +57,7 @@ if __name__ == "__main__":
         "Ackley": lambda x: ackley(torch.tensor(x))
     }
     
-    timestamp = datetime.now().strftime("%d-%m-%Y_%H:%M:%S")
+    timestamp = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
     model_parent_path = f"models/{timestamp}"
     
     os.makedirs(model_parent_path)
@@ -70,7 +70,7 @@ if __name__ == "__main__":
         
         # Create model, optimizer, and loss function
         model = MLP(input_dim, hidden_dim, output_dim)
-        optimiser = optim.Adagrad(model.parameters(), lr=0.01)
+        optimiser = optim.Adam(model.parameters(), lr=0.005)
         loss_fn = nn.MSELoss()
         
         # Train the model
