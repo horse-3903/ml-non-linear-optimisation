@@ -32,16 +32,22 @@ class MLP(nn.Module):
         return self.model(x)
 
 # Training function
-def train_mlp(model: MLP, optimiser: optim.Adam, loss_fn: nn.MSELoss, X_train, y_train, epochs=1000):
+def train_mlp(model: MLP, optimiser: optim.Adam, loss_fn: nn.MSELoss, X_train, y_train, model_path=None, epochs=1000):
     for epoch in range(epochs+1):
-        model.train()
-        optimiser.zero_grad()
-        predictions = model(X_train)
-        loss = loss_fn(predictions, y_train)
-        loss.backward()
-        optimiser.step()
-        if epoch % 100 == 0:
-            print(f"Epoch {epoch}: Loss = {loss.item():.4f}")
+        try:
+            model.train()
+            optimiser.zero_grad()
+            predictions = model(X_train)
+            loss = loss_fn(predictions, y_train)
+            loss.backward()
+            optimiser.step()
+            if epoch % 100 == 0:
+                print(f"Epoch {epoch}: Loss = {loss.item():.4f}")
+                if model_path:
+                    torch.save(model.state_dict(), model_path)
+        except KeyboardInterrupt:
+            print("Breaking from training loop")
+            break
 
 # Main script
 if __name__ == "__main__":
@@ -70,12 +76,13 @@ if __name__ == "__main__":
         
         # Create model, optimizer, and loss function
         model = MLP(input_dim, hidden_dim, output_dim)
-        optimiser = optim.Adam(model.parameters(), lr=0.005)
+        optimiser = optim.Adam(model.parameters(), lr=0.0025)
         loss_fn = nn.MSELoss()
         
-        # Train the model
-        train_mlp(model, optimiser, loss_fn, X_train, y_train, epochs=10000)
-        
         model_path = f"{model_parent_path}/{name.lower()}_model.pt"
+        
+        # Train the model
+        train_mlp(model, optimiser, loss_fn, X_train, y_train, model_path=model_path, epochs=25000)
+        
         torch.save(model.state_dict(), model_path)
         print(f"Model saved to {model_path}")

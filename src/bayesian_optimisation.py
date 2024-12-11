@@ -1,8 +1,13 @@
 import os
-import json
+
+import simplejson as json
+
 import numpy as np
+
 import torch
+
 from functions import rosenbrock, rastrigin, ackley
+
 from skopt import gp_minimize
 
 # Define functions and their minima
@@ -14,8 +19,8 @@ functions = {
 
 # Define the optimisation function for Bayesian optimisation
 def bayesian_optimisation(func, bounds, n_calls=50):
-    result = gp_minimize(func, bounds, n_calls=n_calls, random_state=42)
-    return result.x, result.fun  # Return the optimised point and function value
+    result = gp_minimize(func, bounds, n_calls=n_calls, verbose=True)
+    return result.x, result.fun
 
 if __name__ == "__main__":
     model_lst = sorted(os.listdir('models/'))
@@ -51,4 +56,4 @@ if __name__ == "__main__":
     
     print(f"Saving Results to {res_path}")
     with open(res_path, "w+") as f:
-        f.write(json.dumps(res, indent=4))
+        f.write(json.dumps(res, ignore_nan=True, indent=4))

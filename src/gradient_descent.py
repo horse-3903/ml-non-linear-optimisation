@@ -1,6 +1,6 @@
 import os
 
-import json
+import simplejson as json
 
 import numpy as np
 
@@ -36,7 +36,7 @@ def gradient_descent(model, X_init, lr=0.01, epochs=1000, method="sgd"):
     elif method == "adam":
         optimiser = optim.Adam([X], lr=lr)
     
-    for epoch in range(epochs):
+    for epoch in range(epochs+1):
         optimiser.zero_grad()
         y_pred = model(X)
         loss = F.mse_loss(y_pred, torch.tensor([0.0]))  # Minimise the output value
@@ -98,4 +98,4 @@ if __name__ == "__main__":
     
     print(f"Saving Results to {res_path}")
     with open(res_path, "w+") as f:
-        f.write(json.dumps(res, indent=4))
+        f.write(json.dumps(res, ignore_nan=True, indent=4))
