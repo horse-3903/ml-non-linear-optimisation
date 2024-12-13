@@ -77,10 +77,10 @@ if __name__ == "__main__":
         
         print()
         print("Testing SGD")
-        sgd_optimised_X = gradient_descent(model, X_init, lr=1e-8, epochs=25000, method="sgd")
+        sgd_optimised_X = gradient_descent(model, X_init, lr=1e-5, epochs=10000, method="sgd")
         print()
         print("Testing Adam")
-        adam_optimised_X = gradient_descent(model, X_init, lr=1e-3, epochs=15000, method="adam")
+        adam_optimised_X = gradient_descent(model, X_init, lr=1e-3, epochs=10000, method="adam")
         
         print()
         print(f"SGD Optimised X: {sgd_optimised_X}")        

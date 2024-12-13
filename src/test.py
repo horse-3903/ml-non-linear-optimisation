@@ -9,6 +9,18 @@ import matplotlib.pyplot as plt
 
 from functions import rosenbrock, rastrigin, ackley
 
+functions = {
+    "Rosenbrock": lambda x: rosenbrock(x.clone()),
+    "Rastrigin": lambda x: rastrigin(x.clone()),
+    "Ackley": lambda x: ackley(x.clone())
+}
+
+minimum_points = {
+    "Rosenbrock": np.array([1.0, 1.0]),
+    "Rastrigin": np.array([0.0, 0.0]),
+    "Ackley": np.array([0.0, 0.0])
+}
+
 # Define the MLP model
 class MLP(nn.Module):
     def __init__(self, input_dim, hidden_dim, output_dim):
@@ -47,6 +59,11 @@ def plot_comparison(func, model, name, range_min=-5, range_max=5, resolution=100
     
     print(f"Average MSE for {name} model: {mse:.4f}")
     print(f"Average MAE for {name} model: {mae:.4f}")
+    
+    # Get minimum point
+    min_point = minimum_points[name]
+    min_value = model(torch.tensor(min_point, dtype=torch.float32)).detach().numpy()
+    print(f"Function value at the minimum for {name}: {min_value[0]:.4f}")
 
     # Plot
     fig = plt.figure(figsize=(12, 5))
@@ -85,12 +102,6 @@ if __name__ == "__main__":
     input_dim = 2
     hidden_dim = 128
     output_dim = 1
-
-    functions = {
-        "Rosenbrock": lambda x: rosenbrock(x.clone()),
-        "Rastrigin": lambda x: rastrigin(x.clone()),
-        "Ackley": lambda x: ackley(x.clone())
-    }
     
     model_lst = sorted(os.listdir('models/'))
     model_name = model_lst[-1]
