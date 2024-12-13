@@ -21,7 +21,7 @@ if __name__ == "__main__":
     z_ackley_np = z_ackley.numpy()
 
     # Plotting the functions
-    fig = plt.figure(figsize=(16, 5))
+    fig = plt.figure(figsize=(12, 5))
 
     # Rosenbrock Plot
     ax1 = fig.add_subplot(131, projection='3d')

@@ -82,7 +82,7 @@ if __name__ == "__main__":
         model_path = f"{model_parent_path}/{name.lower()}_model.pt"
         
         # Train the model
-        train_mlp(model, optimiser, loss_fn, X_train, y_train, model_path=model_path, epochs=25000)
+        train_mlp(model, optimiser, loss_fn, X_train, y_train, model_path=model_path, epochs=30000)
         
         torch.save(model.state_dict(), model_path)
         print(f"Model saved to {model_path}")

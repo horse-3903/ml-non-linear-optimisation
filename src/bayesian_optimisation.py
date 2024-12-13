@@ -18,17 +18,21 @@ functions = {
 }
 
 # Define the optimisation function for Bayesian optimisation
-def bayesian_optimisation(func, bounds, n_calls=50):
+def bayesian_optimisation(func, bounds, n_calls=100):
     result = gp_minimize(func, bounds, n_calls=n_calls, verbose=True)
     return result.x, result.fun
 
 if __name__ == "__main__":
     model_lst = sorted(os.listdir('models/'))
-    model_parent_dir = f"models/{model_lst[-1]}"
+    model_name = model_lst[-1]
+    model_parent_dir = f"models/{model_name}"
 
     res = {}
     
     for name, (func, true_min) in functions.items():
+        if name != "Rastrigin":
+            continue
+        
         print(f"\nTesting {name} using Bayesian optimisation")
         
         model_path = f"{model_parent_dir}/{name.lower()}_model.pt"
@@ -52,7 +56,7 @@ if __name__ == "__main__":
 
     print()
     
-    res_path = f"results/bayesian_optimisation/{model_lst[-1]}.json"
+    res_path = f"results/bayesian_optimisation/{model_name}.json"
     
     print(f"Saving Results to {res_path}")
     with open(res_path, "w+") as f:

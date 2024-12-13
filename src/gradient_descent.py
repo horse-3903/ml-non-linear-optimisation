@@ -39,7 +39,7 @@ def gradient_descent(model, X_init, lr=0.01, epochs=1000, method="sgd"):
     for epoch in range(epochs+1):
         optimiser.zero_grad()
         y_pred = model(X)
-        loss = F.mse_loss(y_pred, torch.tensor([0.0]))  # Minimise the output value
+        loss = F.mse_loss(y_pred, torch.tensor([0.0]))
         loss.backward()
         optimiser.step()
         
@@ -54,7 +54,8 @@ if __name__ == "__main__":
     output_dim = 1
     
     model_lst = sorted(os.listdir('models/'))
-    model_parent_dir = f"models/{model_lst[-1]}"
+    model_name = model_lst[-1]
+    model_parent_dir = f"models/{model_name}"
     
     # Define functions and their minima
     functions = {
@@ -76,10 +77,10 @@ if __name__ == "__main__":
         
         print()
         print("Testing SGD")
-        sgd_optimised_X = gradient_descent(model, X_init, lr=0.005, epochs=10000, method="sgd")
+        sgd_optimised_X = gradient_descent(model, X_init, lr=1e-8, epochs=25000, method="sgd")
         print()
         print("Testing Adam")
-        adam_optimised_X = gradient_descent(model, X_init, lr=0.005, epochs=10000, method="adam")
+        adam_optimised_X = gradient_descent(model, X_init, lr=1e-3, epochs=15000, method="adam")
         
         print()
         print(f"SGD Optimised X: {sgd_optimised_X}")        
@@ -94,7 +95,7 @@ if __name__ == "__main__":
         
     print()
     
-    res_path = f"results/gradient_descent/{model_lst[-1]}.json"
+    res_path = f"results/gradient_descent/{model_name}.json"
     
     print(f"Saving Results to {res_path}")
     with open(res_path, "w+") as f:

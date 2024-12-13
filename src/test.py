@@ -38,29 +38,46 @@ def plot_comparison(func, model, name, range_min=-5, range_max=5, resolution=100
     # Get true function values
     true_values = np.array([func(point) for point in points]).reshape(X.shape)
 
-    # Compute Mean Squared Error
+    # Compute Error Heatmap
+    error = np.abs(predictions - true_values)
+
+    # Compute Mean Squared Error and Mean Absolute Error
     mse = np.mean((predictions - true_values) ** 2)
+    mae = np.mean(np.abs(predictions - true_values))
+    
     print(f"Average MSE for {name} model: {mse:.4f}")
+    print(f"Average MAE for {name} model: {mae:.4f}")
 
     # Plot
-    fig = plt.figure(figsize=(12, 6))
+    fig = plt.figure(figsize=(12, 5))
 
     # True function
-    ax1 = fig.add_subplot(121, projection='3d')
+    ax1 = fig.add_subplot(131, projection='3d')
     ax1.plot_surface(X, Y, true_values, cmap='viridis', alpha=0.8)
-    ax1.set_title(f"True Function: {name}")
-    ax1.set_xlabel('X1')
-    ax1.set_ylabel('X2')
-    ax1.set_zlabel('Output')
+    ax1.set_title(f"True Function: {name}", fontsize=10)
+    ax1.set_xlabel('X1', fontsize=8)
+    ax1.set_ylabel('X2', fontsize=8)
+    ax1.set_zlabel('Output', fontsize=8)
+    ax1.tick_params(axis='both', which='major', labelsize=7)
 
     # Predicted function
-    ax2 = fig.add_subplot(122, projection='3d')
+    ax2 = fig.add_subplot(132, projection='3d')
     ax2.plot_surface(X, Y, predictions, cmap='plasma', alpha=0.8)
-    ax2.set_title(f"Predicted Function: {name}")
-    ax2.set_xlabel('X1')
-    ax2.set_ylabel('X2')
-    ax2.set_zlabel('Output')
+    ax2.set_title(f"Predicted Function: {name}", fontsize=10)
+    ax2.set_xlabel('X1', fontsize=8)
+    ax2.set_ylabel('X2', fontsize=8)
+    ax2.set_zlabel('Output', fontsize=8)
+    ax2.tick_params(axis='both', which='major', labelsize=7)
 
+    # Error Heatmap (3D)
+    ax3 = fig.add_subplot(133, projection='3d')
+    ax3.plot_surface(X, Y, error, cmap='coolwarm', alpha=0.8)
+    ax3.set_title(f"Error Heatmap: {name}", fontsize=10)
+    ax3.set_xlabel('X1', fontsize=8)
+    ax3.set_ylabel('X2', fontsize=8)
+    ax3.set_zlabel('Absolute Error', fontsize=8)
+    ax3.tick_params(axis='both', which='major', labelsize=7)
+    
     plt.show()
 
 # Main script
@@ -76,10 +93,14 @@ if __name__ == "__main__":
     }
     
     model_lst = sorted(os.listdir('models/'))
-    model_parent_dir = f"models/{model_lst[-1]}"
+    model_name = model_lst[-1]
+    
+    # for model_name in model_lst:
+    model_parent_dir = f"models/{model_name}"
+    print(f"Testing Model Record {model_name}")
     
     for name, func in functions.items():
-        print(f"\nTesting {name} model")
+        print(f"\nTesting {name} Model")
 
         # Load the saved model
         model_path = f"{model_parent_dir}/{name.lower()}_model.pt"
