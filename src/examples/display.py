@@ -1,8 +1,10 @@
+import sys
+sys.path.insert(1, "src")
+
 import torch
-import numpy as np
 import matplotlib.pyplot as plt
 
-from functions import rosenbrock, rastrigin, ackley
+from util.functions import rosenbrock, rastrigin, ackley
 
 if __name__ == "__main__":
     # Generate a mesh grid using PyTorch

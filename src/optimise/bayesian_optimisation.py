@@ -1,4 +1,7 @@
-import os
+import sys
+sys.path.insert(1, "src")
+
+from datetime import datetime
 
 import simplejson as json
 
@@ -6,7 +9,7 @@ import numpy as np
 
 import torch
 
-from functions import rosenbrock, rastrigin, ackley
+from util.functions import rosenbrock, rastrigin, ackley
 
 from skopt import gp_minimize
 
@@ -23,19 +26,11 @@ def bayesian_optimisation(func, bounds, n_calls=100):
     return result.x, result.fun
 
 if __name__ == "__main__":
-    model_lst = sorted(os.listdir('models/'))
-    model_name = model_lst[-1]
-    model_parent_dir = f"models/{model_name}"
-
+    now = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
     res = {}
     
-    for name, (func, true_min) in functions.items():
-        if name != "Rastrigin":
-            continue
-        
+    for name, (func, true_min) in functions.items():        
         print(f"\nTesting {name} using Bayesian optimisation")
-        
-        model_path = f"{model_parent_dir}/{name.lower()}_model.pt"
 
         # Define the bounds for the optimisation
         bounds = [(-5.0, 5.0), (-5.0, 5.0)]
@@ -50,13 +45,13 @@ if __name__ == "__main__":
         print(f"Actual Minimum for {name}: {true_min}")
         
         res[name] = {
-            "Optimised": (optimised_X, round(optimised_value, 5)),
+            "Optimised": ([round(v, 5) for v in optimised_X], round(optimised_value, 5)),
             "Actual": (true_min.tolist(), round(func(true_min), 5))
         }
 
     print()
     
-    res_path = f"results/bayesian_optimisation/{model_name}.json"
+    res_path = f"results/bayesian_optimisation/{now}.json"
     
     print(f"Saving Results to {res_path}")
     with open(res_path, "w+") as f:

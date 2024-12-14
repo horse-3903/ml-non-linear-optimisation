@@ -1,7 +1,9 @@
-import os
+import sys
+sys.path.insert(1, "src")
 
 import numpy as np
 import matplotlib.pyplot as plt
+
 from scipy.optimize import differential_evolution
 
 pops = []

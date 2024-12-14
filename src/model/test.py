@@ -1,3 +1,6 @@
+import sys
+sys.path.insert(1, "src")
+
 import os
 
 import numpy as np
@@ -7,7 +10,7 @@ import torch.nn as nn
 
 import matplotlib.pyplot as plt
 
-from functions import rosenbrock, rastrigin, ackley
+from util.functions import rosenbrock, rastrigin, ackley
 
 functions = {
     "Rosenbrock": lambda x: rosenbrock(x.clone()),

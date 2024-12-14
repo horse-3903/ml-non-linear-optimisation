@@ -1,3 +1,6 @@
+import sys
+sys.path.insert(1, "src")
+
 import os
 
 from datetime import datetime
@@ -8,7 +11,7 @@ import torch
 import torch.nn as nn
 import torch.optim as optim
 
-from functions import rosenbrock, rastrigin, ackley
+from util.functions import rosenbrock, rastrigin, ackley
 
 # Generate synthetic data for training
 def generate_data(func, n_samples=1000, input_dim=2, range_min=-5, range_max=5):
