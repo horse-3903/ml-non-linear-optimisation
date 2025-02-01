@@ -35,11 +35,7 @@ if __name__ == "__main__":
         # Define the bounds for the optimisation
         bounds = [(-5.0, 5.0), (-5.0, 5.0)]
         
-        # Perform Bayesian optimisation
-        def wrapped_func(x):
-            return func(x)
-        
-        optimised_X, optimised_value = bayesian_optimisation(wrapped_func, bounds)
+        optimised_X, optimised_value = bayesian_optimisation(func, bounds)
         
         print(f"Optimised X: {optimised_X}")
         print(f"Actual Minimum for {name}: {true_min}")

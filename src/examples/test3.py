@@ -2,9 +2,8 @@ import sys
 sys.path.insert(1, "src")
 
 from datetime import datetime
-
+import matplotlib.pyplot as plt
 import simplejson as json
-
 import numpy as np
 
 import torch
@@ -21,8 +20,20 @@ functions = {
     "Ackley": (lambda x: ackley(x.clone()), np.array([0, 0]))  # Minimum is at (0, 0)
 }
 
+# Track average losses across functions
+sgd_losses = []
+adam_losses = []
+
+# Normalize the loss values before averaging
+def normalize_losses(losses):
+    min_loss = np.min(losses)
+    max_loss = np.max(losses)
+    if max_loss > min_loss:
+        return (losses - min_loss) / (max_loss - min_loss)
+    return losses  # No normalization needed if the range is 0 (constant losses)
+
 # Define a function to optimise using Gradient Descent
-def gradient_descent(func, X_init, lr=0.01, epochs=1000, method="sgd"):
+def gradient_descent(func, X_init, lr=0.01, epochs=1000, method="sgd", loss_log=None):
     X = torch.tensor(X_init, dtype=torch.float32, requires_grad=True)
     optimiser = None
 
@@ -31,6 +42,8 @@ def gradient_descent(func, X_init, lr=0.01, epochs=1000, method="sgd"):
     elif method == "adam":
         optimiser = optim.Adam([X], lr=lr)
     
+    losses = []
+
     for epoch in range(epochs+1):
         optimiser.zero_grad()
         y_pred = func(X)
@@ -42,8 +55,14 @@ def gradient_descent(func, X_init, lr=0.01, epochs=1000, method="sgd"):
         loss.backward()
         optimiser.step()
         
-        if epoch % 100 == 0:
+        losses.append(loss.item())  # Record the loss
+
+        if epoch % 1000 == 0:  # Log every 1000 epochs
             print(f"Epoch {epoch}: Loss = {loss.item():.4f}, X = {X.detach().numpy()}")
+
+    # Normalize the losses before logging
+    normalized_losses = normalize_losses(np.array(losses))
+    loss_log.append(normalized_losses)
 
     return X.detach().numpy()
 
@@ -59,28 +78,23 @@ if __name__ == "__main__":
         
         print()
         print("Testing SGD")
-        sgd_optimised_X = gradient_descent(func, X_init, lr=1e-7, epochs=25000, method="sgd")
+        gradient_descent(func, X_init, lr=1e-7, epochs=5000, method="sgd", loss_log=sgd_losses)
+        
         print()
         print("Testing Adam")
-        adam_optimised_X = gradient_descent(func, X_init, lr=1e-3, epochs=25000, method="adam")
+        gradient_descent(func, X_init, lr=1e-3, epochs=5000, method="adam", loss_log=adam_losses)
         
-        print()
-        print(f"SGD Optimised X: {sgd_optimised_X}")        
-        print(f"Adam Optimised X: {adam_optimised_X}")
-        print(f"Actual Minimum for {name}: {true_min}")
-        
-        print("bong")
-        
-        res[name] = {
-            "SGD": ([round(v, 5) for v in sgd_optimised_X.tolist()], round(func(torch.from_numpy(sgd_optimised_X)).item(), 5)),
-            "Adam": ([round(v, 5) for v in adam_optimised_X.tolist()], round(func(torch.from_numpy(adam_optimised_X)).item(), 5)),
-            "Actual": (true_min.tolist(), round(func(torch.from_numpy(true_min)).item(), 5))
-        }
-        
-    print()
+    # Average the normalized losses over all functions
+    avg_sgd_losses = np.mean(np.array(sgd_losses), axis=0)
+    avg_adam_losses = np.mean(np.array(adam_losses), axis=0)
     
-    res_path = f"results/gradient_descent/{now}.json"
-    
-    print(f"Saving Results to {res_path}")
-    with open(res_path, "w+") as f:
-        f.write(json.dumps(res, ignore_nan=True, indent=4))
+    # Plot the results
+    plt.figure(figsize=(10, 6))
+    plt.plot(avg_adam_losses, label="Adam")
+    plt.plot(avg_sgd_losses, label="SGD")
+    plt.xlabel("Iteration")
+    plt.ylabel("Normalised Loss")
+    plt.title("Comparison of SGD and Adam Optimisers (Normalised Loss)")
+    plt.legend()
+    plt.grid()
+    plt.show()
